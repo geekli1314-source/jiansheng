@@ -10,7 +10,6 @@ class PrivacyCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 100),
       child: Container(
         width: double.infinity,
-        height: 70,
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: const [
@@ -39,7 +38,7 @@ class PrivacyCard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -51,17 +50,15 @@ class PrivacyCard extends StatelessWidget {
                           letterSpacing: 0.0,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                        child: Text(
-                          'Your health data has been encrypted and stored',
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF4B5563),
-                            fontSize: 12,
-                            letterSpacing: 0.0,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Data encrypted',
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFF4B5563),
+                          fontSize: 12,
+                          letterSpacing: 0.0,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

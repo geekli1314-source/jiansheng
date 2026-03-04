@@ -33,8 +33,17 @@ class _MyAppState extends State<MyApp> {
 
   /// 自动连接默认设备
   void _autoConnectDevice() async {
-    final bluetoothService = Get.find<BluetoothService>();
-    await bluetoothService.autoConnectDefaultDevice();
+    // 检查是否开启了自动连接
+    final settings = await DatabaseService.to.getUserSettings();
+    final autoConnect = settings['auto_connect_bluetooth'];
+
+    // 默认开启，如果设置不存在或设置为true则自动连接
+    if (autoConnect == null || autoConnect == 'true') {
+      final bluetoothService = Get.find<BluetoothService>();
+      await bluetoothService.autoConnectDefaultDevice();
+    } else {
+      print('[App] 自动连接已关闭，跳过自动连接');
+    }
   }
 
   @override

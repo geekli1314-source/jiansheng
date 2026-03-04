@@ -6,19 +6,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../statistics_controller.dart';
 
 class ActivityChartCard extends GetView<StatisticsController> {
-  final Color iconBgColor;
-  final String iconAsset;
-  final String title;
-  final Color barColor;
   final String activityKey;
+  final String title;
 
   const ActivityChartCard({
     super.key,
-    required this.iconBgColor,
-    required this.iconAsset,
-    required this.title,
-    required this.barColor,
     required this.activityKey,
+    required this.title,
   });
 
   @override
@@ -51,18 +45,14 @@ class ActivityChartCard extends GetView<StatisticsController> {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: iconBgColor,
+                      color: controller.getBgColorForType(activityKey),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        iconAsset,
-                        width: 20,
-                        height: 20,
-                        fit: BoxFit.contain,
-                      ),
+                    child: Icon(
+                      controller.getIconForType(activityKey),
+                      color: controller.getColorForType(activityKey),
+                      size: 18,
                     ),
                   ),
                   Padding(
@@ -84,7 +74,7 @@ class ActivityChartCard extends GetView<StatisticsController> {
                 final data = controller.getChartData(activityKey);
                 final labels = controller.getXLabels();
                 final summaryText = controller.getSummaryText(activityKey);
-                final maxY = data.isEmpty
+                final maxY = data.isEmpty || data.every((d) => d == 0)
                     ? 10.0
                     : (data.reduce((a, b) => a > b ? a : b) * 1.3)
                         .ceilToDouble();
@@ -94,104 +84,118 @@ class ActivityChartCard extends GetView<StatisticsController> {
                   children: [
                     SizedBox(
                       height: 160,
-                      child: BarChart(
-                        BarChartData(
-                          maxY: maxY,
-                          barTouchData: BarTouchData(
-                            enabled: true,
-                            touchTooltipData: BarTouchTooltipData(
-                              getTooltipColor: (_) =>
-                                  barColor.withValues(alpha: 0.85),
-                              tooltipRoundedRadius: 6,
-                              getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                                return BarTooltipItem(
-                                  rod.toY.toInt().toString(),
-                                  GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          titlesData: FlTitlesData(
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 32,
-                                getTitlesWidget: (value, meta) {
-                                  if (value == meta.max) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return Text(
-                                    value.toInt().toString(),
-                                    style: GoogleFonts.inter(
-                                      fontSize: 10,
-                                      color: const Color(0xFF9CA3AF),
-                                    ),
-                                  );
-                                },
+                      child: data.every((d) => d == 0)
+                          ? Center(
+                              child: Text(
+                                'No data',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: const Color(0xFF9CA3AF),
+                                ),
                               ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 28,
-                                getTitlesWidget: (value, meta) {
-                                  final idx = value.toInt();
-                                  if (idx < 0 || idx >= labels.length) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: Text(
-                                      labels[idx],
-                                      style: GoogleFonts.inter(
-                                        fontSize: 10,
-                                        color: const Color(0xFF9CA3AF),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: false,
-                            horizontalInterval: maxY / 4,
-                            getDrawingHorizontalLine: (value) => FlLine(
-                              color: const Color(0xFFF3F4F6),
-                              strokeWidth: 1,
-                            ),
-                          ),
-                          borderData: FlBorderData(show: false),
-                          barGroups: data.asMap().entries.map((entry) {
-                            return BarChartGroupData(
-                              x: entry.key,
-                              barRods: [
-                                BarChartRodData(
-                                  toY: entry.value,
-                                  color: barColor,
-                                  width: _barWidth(data.length),
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(4),
+                            )
+                          : BarChart(
+                              BarChartData(
+                                maxY: maxY,
+                                barTouchData: BarTouchData(
+                                  enabled: true,
+                                  touchTooltipData: BarTouchTooltipData(
+                                    getTooltipColor: (_) => controller
+                                        .getColorForType(activityKey)
+                                        .withOpacity(0.85),
+                                    tooltipRoundedRadius: 6,
+                                    getTooltipItem:
+                                        (group, groupIndex, rod, rodIndex) {
+                                      return BarTooltipItem(
+                                        rod.toY.toInt().toString(),
+                                        GoogleFonts.inter(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                        duration: const Duration(milliseconds: 350),
-                        curve: Curves.easeInOut,
-                      ),
+                                titlesData: FlTitlesData(
+                                  topTitles: const AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                  rightTitles: const AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 32,
+                                      getTitlesWidget: (value, meta) {
+                                        if (value == meta.max) {
+                                          return const SizedBox.shrink();
+                                        }
+                                        return Text(
+                                          value.toInt().toString(),
+                                          style: GoogleFonts.inter(
+                                            fontSize: 10,
+                                            color: const Color(0xFF9CA3AF),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 28,
+                                      getTitlesWidget: (value, meta) {
+                                        final idx = value.toInt();
+                                        if (idx < 0 || idx >= labels.length) {
+                                          return const SizedBox.shrink();
+                                        }
+                                        return Padding(
+                                          padding: const EdgeInsets.only(top: 6),
+                                          child: Text(
+                                            labels[idx],
+                                            style: GoogleFonts.inter(
+                                              fontSize: 10,
+                                              color: const Color(0xFF9CA3AF),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawVerticalLine: false,
+                                  horizontalInterval: maxY / 4,
+                                  getDrawingHorizontalLine: (value) => FlLine(
+                                    color: const Color(0xFFF3F4F6),
+                                    strokeWidth: 1,
+                                  ),
+                                ),
+                                borderData: FlBorderData(show: false),
+                                barGroups: data.asMap().entries.map((entry) {
+                                  return BarChartGroupData(
+                                    x: entry.key,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: entry.value,
+                                        color: controller
+                                            .getColorForType(activityKey),
+                                        width: _barWidth(data.length),
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                          top: Radius.circular(4),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                              duration: const Duration(milliseconds: 350),
+                              curve: Curves.easeInOut,
+                            ),
                     ),
                     const SizedBox(height: 8),
                     // Summary text

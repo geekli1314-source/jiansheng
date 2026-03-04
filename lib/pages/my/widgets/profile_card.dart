@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ProfileCard extends StatelessWidget {
+import '../my_controller.dart';
+
+class ProfileCard extends GetView<MyController> {
   const ProfileCard({super.key});
 
   @override
@@ -67,15 +70,15 @@ class ProfileCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Alex Johnson',
+                    Obx(() => Text(
+                      controller.userName.value,
                       style: GoogleFonts.inter(
                         color: Colors.black,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.0,
                       ),
-                    ),
+                    )),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                       child: Row(
@@ -88,12 +91,12 @@ class ProfileCard extends StatelessWidget {
                           ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                            child: Text(
-                              'man',
+                            child: Obx(() => Text(
+                              controller.userGender.value,
                               style: GoogleFonts.inter(
                                 letterSpacing: 0.0,
                               ),
-                            ),
+                            )),
                           ),
                           // 体重
                           Padding(
@@ -108,12 +111,12 @@ class ProfileCard extends StatelessWidget {
                                 Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                  child: Text(
-                                    ' 75 kg ',
+                                  child: Obx(() => Text(
+                                    ' ${controller.userWeight.value} kg ',
                                     style: GoogleFonts.inter(
                                       letterSpacing: 0.0,
                                     ),
-                                  ),
+                                  )),
                                 ),
                               ],
                             ),

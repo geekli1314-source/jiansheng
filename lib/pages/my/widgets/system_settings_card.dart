@@ -12,7 +12,6 @@ class SystemSettingsCard extends GetView<MyController> {
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
       child: Container(
         width: double.infinity,
-        height: 300,
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: const [
@@ -27,7 +26,7 @@ class SystemSettingsCard extends GetView<MyController> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // 标题
               Row(
@@ -42,27 +41,34 @@ class SystemSettingsCard extends GetView<MyController> {
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
               // 蓝牙自动连接
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: Image.asset(
-                      'assets/images/bluetooth.png',
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.contain,
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF3B82F6).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.bluetooth,
+                      color: Color(0xFF3B82F6),
+                      size: 20,
                     ),
                   ),
-                  Text(
-                    'Bluetooth automatic connection',
-                    style: GoogleFonts.inter(letterSpacing: 0.0),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Automatic connection',
+                      style: GoogleFonts.inter(letterSpacing: 0.0),
+                    ),
                   ),
-                  const Spacer(),
                   Obx(
                     () => Switch(
-                      value: controller.switchValue.value,
-                      onChanged: controller.toggleSwitch,
+                      value: controller.autoConnectBluetooth.value,
+                      onChanged: controller.toggleAutoConnect,
                       thumbColor: WidgetStateProperty.all(Colors.white),
                       trackColor: WidgetStateProperty.resolveWith((states) {
                         if (states.contains(WidgetState.selected)) {
@@ -76,104 +82,227 @@ class SystemSettingsCard extends GetView<MyController> {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               // 数据存储位置
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: Image.asset(
-                      'assets/images/datastorage.png',
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.contain,
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF22C55E).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.storage,
+                      color: Color(0xFF22C55E),
+                      size: 20,
                     ),
                   ),
-                  Text(
-                    'Data storage location',
-                    style: GoogleFonts.inter(letterSpacing: 0.0),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Data storage location',
+                      style: GoogleFonts.inter(letterSpacing: 0.0),
+                    ),
                   ),
-                  const Spacer(),
-                  Text(
-                    'this machine',
-                    style: GoogleFonts.inter(letterSpacing: 0.0),
-                  ),
+                  Obx(() => Text(
+                    controller.dataStorageLocation.value,
+                    style: GoogleFonts.inter(
+                      letterSpacing: 0.0,
+                      color: const Color(0xFF6B7280),
+                    ),
+                  )),
                 ],
               ),
+              const SizedBox(height: 16),
               // 清除数据
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: Image.asset(
-                      'assets/images/deta.png',
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.contain,
+              InkWell(
+                onTap: () => _showClearDataDialog(context),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: Color(0xFFEF4444),
+                        size: 20,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Clear data',
-                    style: GoogleFonts.inter(letterSpacing: 0.0),
-                  ),
-                  const Spacer(),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Color(0xFF9CA3AF),
-                    size: 15,
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Clear data',
+                        style: GoogleFonts.inter(letterSpacing: 0.0),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: Color(0xFF9CA3AF),
+                      size: 15,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 16),
               // 关于应用
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: Image.asset(
-                      'assets/images/about.png',
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.contain,
+              InkWell(
+                onTap: () => _showAboutDialog(context),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFA855F7).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.info_outline,
+                        color: Color(0xFFA855F7),
+                        size: 20,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'About the application',
-                    style: GoogleFonts.inter(letterSpacing: 0.0),
-                  ),
-                  const Spacer(),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Color(0xFF9CA3AF),
-                    size: 15,
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'About the application',
+                        style: GoogleFonts.inter(letterSpacing: 0.0),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: Color(0xFF9CA3AF),
+                      size: 15,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 16),
               // 帮助与反馈
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: Image.asset(
-                      'assets/images/he.png',
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.contain,
+              InkWell(
+                onTap: () => _showHelpDialog(context),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.help_outline,
+                        color: Color(0xFFF59E0B),
+                        size: 20,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Help and Feedback',
-                    style: GoogleFonts.inter(letterSpacing: 0.0),
-                  ),
-                  const Spacer(),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Color(0xFF9CA3AF),
-                    size: 15,
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Help and Feedback',
+                        style: GoogleFonts.inter(letterSpacing: 0.0),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: Color(0xFF9CA3AF),
+                      size: 15,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showClearDataDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Data'),
+        content: const Text('Are you sure you want to clear all exercise data?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller.clearAllData();
+              Navigator.pop(context);
+              Get.snackbar(
+                'Success',
+                'All data has been cleared',
+                snackPosition: SnackPosition.BOTTOM,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('About'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Fitness Movement Detection'),
+            SizedBox(height: 8),
+            Text('Version: 1.0.0'),
+            SizedBox(height: 8),
+            Text('A smart fitness tracking app'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Help & Feedback'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('For help and support:'),
+            SizedBox(height: 8),
+            Text('Email: support@fitness.app'),
+            SizedBox(height: 8),
+            Text('Website: www.fitness.app'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }

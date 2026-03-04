@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ActivityItemWidget extends StatelessWidget {
-  final String iconAsset;
-  final double iconWidth;
-  final double iconHeight;
+  final IconData icon;
+  final Color iconColor;
   final String name;
   final String value;
 
   const ActivityItemWidget({
     super.key,
-    required this.iconAsset,
-    required this.iconWidth,
-    required this.iconHeight,
+    required this.icon,
+    required this.iconColor,
     required this.name,
     required this.value,
   });
@@ -31,17 +29,21 @@ class ActivityItemWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(0),
-              child: Image.asset(
-                iconAsset,
-                width: iconWidth,
-                height: iconHeight,
-                fit: BoxFit.contain,
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 20,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+              padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,

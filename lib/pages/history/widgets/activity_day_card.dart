@@ -61,9 +61,8 @@ class ActivityDayCard extends StatelessWidget {
                 (item) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: ActivityItemWidget(
-                    iconAsset: item.iconAsset,
-                    iconWidth: item.iconWidth,
-                    iconHeight: item.iconHeight,
+                    icon: item.icon,
+                    iconColor: item.iconColor,
                     name: item.name,
                     value: item.value,
                   ),

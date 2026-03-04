@@ -287,6 +287,156 @@ class DatabaseService extends GetxService {
     }).toList();
   }
 
+  /// 分页获取历史记录（用于记录页面上拉加载）
+  /// [page] 页码，从0开始
+  /// [pageSize] 每页天数
+  Future<List<DayExerciseSummary>> getDaySummariesByPage(int page, int pageSize) async {
+    final db = await initDatabase();
+    final offset = page * pageSize;
+
+    // 先获取有记录的所有日期（去重）
+    final dateResult = await db.rawQuery('''
+      SELECT DISTINCT date(timestamp) as date
+      FROM $_tableName
+      ORDER BY date(timestamp) DESC
+      LIMIT ? OFFSET ?
+    ''', [pageSize, offset]);
+
+    if (dateResult.isEmpty) return [];
+
+    final dates = dateResult.map((r) => r['date'] as String).toList();
+
+    // 获取这些日期的所有动作统计
+    final placeholders = List.filled(dates.length, '?').join(',');
+    final result = await db.rawQuery('''
+      SELECT 
+        date(timestamp) as date,
+        actionType,
+        SUM(count) as total
+      FROM $_tableName
+      WHERE date(timestamp) IN ($placeholders)
+      GROUP BY date(timestamp), actionType
+      ORDER BY date(timestamp) DESC
+    ''', dates);
+
+    final Map<String, Map<String, int>> grouped = {};
+    for (final row in result) {
+      final date = row['date'] as String;
+      final actionType = row['actionType'] as String;
+      final total = row['total'] as int;
+
+      grouped.putIfAbsent(date, () => {});
+      grouped[date]![actionType] = total;
+    }
+
+    return grouped.entries.map((entry) {
+      final date = DateTime.parse(entry.key);
+      return DayExerciseSummary(
+        date: date,
+        dayName: _getDayName(date),
+        actionCounts: entry.value,
+      );
+    }).toList();
+  }
+
+  /// 获取总记录天数（用于判断是否还有更多数据）
+  Future<int> getTotalRecordDays() async {
+    final db = await initDatabase();
+    final result = await db.rawQuery('''
+      SELECT COUNT(DISTINCT date(timestamp)) as count
+      FROM $_tableName
+    ''');
+    return result.first['count'] as int? ?? 0;
+  }
+
+  // ==================== 用户设置管理 ====================
+
+  static const String _userSettingsKey = 'user_settings';
+
+  /// 保存用户设置
+  Future<void> saveUserSettings(Map<String, dynamic> settings) async {
+    final db = await initDatabase();
+    final value = settings.entries.map((e) => '${e.key}=${e.value}').join('&');
+    await db.insert(
+      'settings',
+      {'key': _userSettingsKey, 'value': value},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// 获取用户设置
+  Future<Map<String, String>> getUserSettings() async {
+    final db = await initDatabase();
+    final result = await db.query(
+      'settings',
+      where: 'key = ?',
+      whereArgs: [_userSettingsKey],
+    );
+    if (result.isEmpty) return {};
+
+    final value = result.first['value'] as String;
+    final Map<String, String> settings = {};
+    for (final pair in value.split('&')) {
+      final parts = pair.split('=');
+      if (parts.length == 2) {
+        settings[parts[0]] = parts[1];
+      }
+    }
+    return settings;
+  }
+
+  /// 保存单个设置项
+  Future<void> setSetting(String key, String value) async {
+    final settings = await getUserSettings();
+    settings[key] = value;
+    await saveUserSettings(settings);
+  }
+
+  /// 获取单个设置项
+  Future<String?> getSetting(String key) async {
+    final settings = await getUserSettings();
+    return settings[key];
+  }
+
+  /// 获取用户总运动次数
+  Future<int> getUserTotalReps() async {
+    final db = await initDatabase();
+    final result = await db.rawQuery(
+      'SELECT SUM(count) as total FROM $_tableName'
+    );
+    return result.first['total'] as int? ?? 0;
+  }
+
+  /// 获取用户连续运动天数
+  Future<int> getConsecutiveDays() async {
+    final db = await initDatabase();
+    final result = await db.rawQuery('''
+      SELECT DISTINCT date(timestamp) as date
+      FROM $_tableName
+      ORDER BY date(timestamp) DESC
+    ''');
+
+    if (result.isEmpty) return 0;
+
+    int consecutiveDays = 1;
+    DateTime? lastDate;
+
+    for (final row in result) {
+      final date = DateTime.parse(row['date'] as String);
+      if (lastDate != null) {
+        final difference = lastDate.difference(date).inDays;
+        if (difference == 1) {
+          consecutiveDays++;
+        } else if (difference > 1) {
+          break;
+        }
+      }
+      lastDate = date;
+    }
+
+    return consecutiveDays;
+  }
+
   /// 获取周统计数据（用于图表）
   /// 返回最近7天，每天各动作类型的次数
   Future<Map<String, List<double>>> getWeeklyStats() async {

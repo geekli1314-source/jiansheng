@@ -342,6 +342,9 @@ class BluetoothService extends GetxService {
   /// 当前运动类型（1=二头弯举, 2=高位下拉, 3=蝴蝶机夹胸）
   int _currentExerciseType = ExerciseType.bicepCurl;
 
+  /// 上次保存的次数，用于计算增量
+  int _lastSavedCount = 0;
+
   /// 设置当前运动类型
   void setExerciseType(int type) {
     if (type >= 1 && type <= 3) {
@@ -358,16 +361,35 @@ class BluetoothService extends GetxService {
   /// 保存次数到数据库
   void _saveToDatabase(int count) async {
     try {
-      await DatabaseService.to.saveRepCount(count, exerciseType: _currentExerciseType);
-      print('[BLE] ✓ 次数已保存到数据库: $count, 类型: ${ExerciseType.getChineseName(_currentExerciseType)}');
-      // 刷新主页今日数据
-      try {
-        final homeController = Get.find<HomeController>();
-        homeController.loadTodayActivities();
-      } catch (_) {}
+      // 只保存增量（当前次数 - 上次保存次数）
+      int increment = count - _lastSavedCount;
+      if (increment <= 0) {
+        // 如果次数减少或不变，可能是新的一组开始了，重置计数
+        _lastSavedCount = 0;
+        increment = count;
+      }
+
+      if (increment > 0) {
+        await DatabaseService.to.saveRepCount(increment, exerciseType: _currentExerciseType);
+        print('[BLE] ✓ 次数已保存到数据库: +$increment (总次数: $count), 类型: ${ExerciseType.getChineseName(_currentExerciseType)}');
+
+        _lastSavedCount = count;
+
+        // 刷新主页今日数据
+        try {
+          final homeController = Get.find<HomeController>();
+          homeController.loadTodayActivities();
+        } catch (_) {}
+      }
     } catch (e) {
       print('[BLE] ✗ 保存到数据库失败: $e');
     }
+  }
+
+  /// 重置计数（在开始新一组时调用）
+  void resetRepCount() {
+    _lastSavedCount = 0;
+    print('[BLE] 计数已重置');
   }
 
   /// 保存设备为默认设备
@@ -421,6 +443,8 @@ class BluetoothService extends GetxService {
   /// 开始运动（指令: 1）
   Future<bool> sendStart() async {
     print('[BLE] 发送开始指令');
+    // 重置计数，准备新一组运动
+    resetRepCount();
     final ok = await _sendCommand(BoardCommand.start.index);
     if (ok) isExercising.value = true;
     return ok;
