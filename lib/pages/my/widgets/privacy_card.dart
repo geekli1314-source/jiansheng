@@ -10,7 +10,7 @@ class PrivacyCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 100),
       child: Container(
         width: double.infinity,
-        height: 80,
+        height: 70,
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: const [
@@ -46,6 +46,7 @@ class PrivacyCard extends StatelessWidget {
                         'Privacy Protection',
                         style: GoogleFonts.inter(
                           color: Colors.black,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.0,
                         ),
