@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../home_controller.dart';
 
-class TodayCountCard extends StatelessWidget {
+class TodayCountCard extends GetView<HomeController> {
   const TodayCountCard({super.key});
 
   @override
@@ -10,7 +12,6 @@ class TodayCountCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
       child: Container(
         width: double.infinity,
-        height: 260,
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: const [
@@ -25,7 +26,7 @@ class TodayCountCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(15),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
@@ -39,54 +40,61 @@ class TodayCountCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const _ActivityRow(
-                imagePath: 'assets/images/push.png',
-                imageWidth: 20,
-                imageHeight: 15,
-                name: 'push-up',
-                time: '14:30',
-                value: '32reps',
-                duration: '15 minutes',
-              ),
-              const _ActivityRow(
-                imagePath: 'assets/images/running.png',
-                imageWidth: 20,
-                imageHeight: 20,
-                name: 'running',
-                time: '08:15',
-                value: '5kilometer',
-                duration: '30 minutes ',
-              ),
-              const _ActivityRow(
-                imagePath: 'assets/images/walk.png',
-                imageWidth: 20,
-                imageHeight: 20,
-                name: 'walk',
-                time: '19:45',
-                value: '8000step',
-                duration: '1 hour',
-              ),
+              const SizedBox(height: 15),
+              Obx(() {
+                final activities = controller.todayActivities;
+                if (activities.isEmpty) {
+                  return Container(
+                    height: 100,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'No exercise today',
+                      style: GoogleFonts.inter(
+                        color: const Color(0xFF6B7280),
+                        fontSize: 14,
+                      ),
+                    ),
+                  );
+                }
+                return Column(
+                  children: activities.map((activity) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _ActivityRow(
+                        icon: activity.icon,
+                        iconColor: activity.iconColor,
+                        name: activity.actionName,
+                        time: _formatTime(activity.lastTime),
+                        value: '${activity.count}reps',
+                        duration: 'Today',
+                      ),
+                    );
+                  }).toList(),
+                );
+              }),
             ],
           ),
         ),
       ),
     );
   }
+
+  String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
 }
 
 class _ActivityRow extends StatelessWidget {
-  final String imagePath;
-  final double imageWidth;
-  final double imageHeight;
+  final IconData icon;
+  final Color iconColor;
   final String name;
   final String time;
   final String value;
   final String duration;
 
   const _ActivityRow({
-    required this.imagePath,
-    required this.imageWidth,
-    required this.imageHeight,
+    required this.icon,
+    required this.iconColor,
     required this.name,
     required this.time,
     required this.value,
@@ -106,17 +114,21 @@ class _ActivityRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(0),
-              child: Image.asset(
-                imagePath,
-                width: imageWidth,
-                height: imageHeight,
-                fit: BoxFit.contain,
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 20,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 15),
+              padding: const EdgeInsets.only(left: 12),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,

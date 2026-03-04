@@ -7,13 +7,35 @@ import 'pages/statistics/statistics_controller.dart';
 import 'pages/history/history_controller.dart';
 import 'pages/my/my_controller.dart';
 import 'services/bluetooth_service.dart';
+import 'services/database_service.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // App 启动后延迟自动连接默认设备
+    Future.delayed(const Duration(seconds: 2), () {
+      _autoConnectDevice();
+    });
+  }
+
+  /// 自动连接默认设备
+  void _autoConnectDevice() async {
+    final bluetoothService = Get.find<BluetoothService>();
+    await bluetoothService.autoConnectDefaultDevice();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +45,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       initialBinding: BindingsBuilder(() {
+        Get.put(DatabaseService());
         Get.put(BluetoothService());
         Get.put(MainShellController());
         Get.put(HomeController());

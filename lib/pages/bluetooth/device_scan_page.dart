@@ -9,7 +9,7 @@ class DeviceScanPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bluetoothService = Get.put(app.BluetoothService());
+    final bluetoothService = Get.find<app.BluetoothService>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),

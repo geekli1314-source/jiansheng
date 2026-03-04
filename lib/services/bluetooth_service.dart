@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'database_service.dart';
+import '../pages/home/home_controller.dart';
 
 /// 动作状态常量（必须与模型训练顺序一致）
 class GestureState {
@@ -124,6 +126,55 @@ class BluetoothService extends GetxService {
     });
   }
 
+  /// 自动连接默认设备
+  Future<bool> autoConnectDefaultDevice() async {
+    try {
+      final defaultDevice = await DatabaseService.to.getDefaultDevice();
+      if (defaultDevice == null) {
+        print('[BLE] 没有保存的默认设备');
+        return false;
+      }
+
+      final deviceId = defaultDevice['id'];
+      final deviceName = defaultDevice['name'];
+      print('[BLE] 尝试自动连接默认设备: $deviceName ($deviceId)');
+
+      // 检查蓝牙是否开启
+      if (!await isBluetoothEnabled()) {
+        print('[BLE] 蓝牙未开启，无法自动连接');
+        return false;
+      }
+
+      // 扫描并查找设备
+      connectionStatus.value = 'Searching for $deviceName...';
+
+      // 开始扫描
+      scannedDevices.clear();
+      _scanSubscription?.cancel();
+      _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+        for (ScanResult result in results) {
+          if (result.device.remoteId.str == deviceId) {
+            // 找到设备，停止扫描并连接
+            FlutterBluePlus.stopScan();
+            print('[BLE] 找到默认设备，开始连接...');
+            connectToDevice(result.device);
+            return;
+          }
+        }
+      });
+
+      await FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
+
+      // 等待扫描完成
+      await Future.delayed(const Duration(seconds: 5));
+
+      return connectedDevice.value != null;
+    } catch (e) {
+      print('[BLE] 自动连接失败: $e');
+      return false;
+    }
+  }
+
   Future<bool> requestPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.bluetooth,
@@ -213,6 +264,9 @@ class BluetoothService extends GetxService {
       // 发现服务并订阅特征
       await _discoverAndSubscribe(device);
 
+      // 保存为默认设备
+      await _saveAsDefaultDevice(device);
+
       return true;
     } catch (e) {
       print('[BLE] 连接失败: $e');
@@ -254,6 +308,8 @@ class BluetoothService extends GetxService {
                 int count = _bytesToInt(value);
                 print('[BLE] << 收到次数通知: 原始=$value  解析=$count');
                 repCount.value = count;
+                // 保存到数据库
+                _saveToDatabase(count);
               }
             });
           } else if (uuid == _clientOrderUuid) {
@@ -281,6 +337,53 @@ class BluetoothService extends GetxService {
     // 处理有符号 int
     if (result >= 0x80000000) result -= 0x100000000;
     return result;
+  }
+
+  /// 当前运动类型（1=二头弯举, 2=高位下拉, 3=蝴蝶机夹胸）
+  int _currentExerciseType = ExerciseType.bicepCurl;
+
+  /// 设置当前运动类型
+  void setExerciseType(int type) {
+    if (type >= 1 && type <= 3) {
+      _currentExerciseType = type;
+      // 更新主页显示
+      try {
+        final homeController = Get.find<HomeController>();
+        homeController.updateCurrentExerciseType(type);
+      } catch (_) {}
+      print('[BLE] 运动类型已切换: ${ExerciseType.getChineseName(type)}');
+    }
+  }
+
+  /// 保存次数到数据库
+  void _saveToDatabase(int count) async {
+    try {
+      await DatabaseService.to.saveRepCount(count, exerciseType: _currentExerciseType);
+      print('[BLE] ✓ 次数已保存到数据库: $count, 类型: ${ExerciseType.getChineseName(_currentExerciseType)}');
+      // 刷新主页今日数据
+      try {
+        final homeController = Get.find<HomeController>();
+        homeController.loadTodayActivities();
+      } catch (_) {}
+    } catch (e) {
+      print('[BLE] ✗ 保存到数据库失败: $e');
+    }
+  }
+
+  /// 保存设备为默认设备
+  Future<void> _saveAsDefaultDevice(BluetoothDevice device) async {
+    try {
+      final deviceName = device.platformName.isNotEmpty
+          ? device.platformName
+          : 'Unknown Device';
+      await DatabaseService.to.saveDefaultDevice(
+        device.remoteId.str,
+        deviceName,
+      );
+      print('[BLE] ✓ 已保存为默认设备: $deviceName');
+    } catch (e) {
+      print('[BLE] ✗ 保存默认设备失败: $e');
+    }
   }
 
   /// 断开时内部清理
