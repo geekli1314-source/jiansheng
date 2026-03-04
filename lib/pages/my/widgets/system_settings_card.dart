@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../my_controller.dart';
+import '../../../services/database_service.dart';
 
 class SystemSettingsCard extends GetView<MyController> {
   const SystemSettingsCard({super.key});
@@ -217,6 +219,40 @@ class SystemSettingsCard extends GetView<MyController> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              // 生成测试数据
+              InkWell(
+                onTap: () => _showGenerateTestDataDialog(context),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.data_array,
+                        color: Color(0xFF10B981),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Generate test data',
+                        style: GoogleFonts.inter(letterSpacing: 0.0),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: Color(0xFF9CA3AF),
+                      size: 15,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -304,6 +340,105 @@ class SystemSettingsCard extends GetView<MyController> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showGenerateTestDataDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Generate Test Data'),
+        content: const Text(
+          'This will generate test data for the past 6 months.\n\n'
+          'Existing data will be overwritten.\n\n'
+          'Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _generateTestData();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+            ),
+            child: const Text('Generate'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 生成测试数据
+  Future<void> _generateTestData() async {
+    Get.snackbar(
+      'Generating',
+      'Please wait...',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+    );
+
+    final random = Random();
+    final now = DateTime.now();
+    final sixMonthsAgo = now.subtract(const Duration(days: 180));
+
+    int generatedCount = 0;
+
+    // 遍历过去6个月的每一天
+    for (int day = 0; day < 180; day++) {
+      final date = sixMonthsAgo.add(Duration(days: day));
+
+      // 随机决定这一天是否有运动 (70%概率)
+      if (random.nextDouble() > 0.3) {
+        // 为每种运动类型生成数据
+        for (int exerciseType = 1; exerciseType <= 3; exerciseType++) {
+          // 随机决定这种运动是否做了 (60%概率)
+          if (random.nextDouble() > 0.4) {
+            // 生成1-5组数据
+            final groups = random.nextInt(5) + 1;
+
+            for (int g = 0; g < groups; g++) {
+              // 每组8-15次
+              final count = random.nextInt(8) + 8;
+
+              // 随机时间（当天任意时间）
+              final hour = random.nextInt(14) + 8; // 8-21点
+              final minute = random.nextInt(60);
+              final timestamp = DateTime(
+                date.year,
+                date.month,
+                date.day,
+                hour,
+                minute,
+              );
+
+              // 保存到数据库
+              final record = ActionRecord(
+                timestamp: timestamp,
+                count: count,
+                actionType: ExerciseType.getName(exerciseType),
+                actionName: ExerciseType.getChineseName(exerciseType),
+              );
+
+              await DatabaseService.to.insertRecord(record);
+              generatedCount++;
+            }
+          }
+        }
+      }
+    }
+
+    // 刷新数据
+    await controller.loadUserStats();
+
+    Get.snackbar(
+      'Success',
+      'Generated $generatedCount records for past 6 months',
+      snackPosition: SnackPosition.BOTTOM,
     );
   }
 }
