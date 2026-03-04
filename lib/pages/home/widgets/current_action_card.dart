@@ -25,48 +25,110 @@ class CurrentActionCard extends GetView<HomeController> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  'assets/images/push.png',
-                  width: 40,
-                  height: 30,
-                  fit: BoxFit.contain,
-                ),
-              ),
-              Text(
-                'Current action',
-                style: GoogleFonts.inter(
-                  color: Colors.black,
-                  fontSize: 16,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Obx(
-                () => Container(
-                  width: 80,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
-                    borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: GetBuilder<HomeController>(
+            builder: (_) => Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 左侧：大数字次数
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Reps',
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFF9CA3AF),
+                          fontSize: 13,
+                          letterSpacing: 0.0,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${controller.repCount}',
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFF1D4ED8),
+                          fontSize: 56,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -2,
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
                   ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    controller.currentAction.value,
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF1D4ED8),
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.w600,
+                ),
+                // 右侧：状态 + 当前动作名
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // 运动状态 badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: controller.isExercising
+                            ? const Color(0xFFDCFCE7)
+                            : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: controller.isExercising
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFFD1D5DB),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            controller.isExercising ? 'Running' : 'Ready',
+                            style: GoogleFonts.inter(
+                              color: controller.isExercising
+                                  ? const Color(0xFF16A34A)
+                                  : const Color(0xFF6B7280),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.0,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    // 当前动作名
+                    Text(
+                      'Action',
+                      style: GoogleFonts.inter(
+                        color: const Color(0xFF9CA3AF),
+                        fontSize: 11,
+                        letterSpacing: 0.0,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Obx(
+                      () => Text(
+                        controller.currentAction.value,
+                        style: GoogleFonts.inter(
+                          color: Colors.black87,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

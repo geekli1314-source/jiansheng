@@ -11,91 +11,99 @@ class ActionButtons extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          GestureDetector(
-            onTap: controller.startDetection,
-            child: Container(
-              width: 110,
-              height: 60,
-              decoration: BoxDecoration(
-                color: const Color(0xCD22C55E),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const FaIcon(
-                      FontAwesomeIcons.caretRight,
-                      color: Colors.white,
-                      size: 24,
+      child: GetBuilder<HomeController>(
+        builder: (_) => Row(
+          children: [
+            // Start 按钮
+            Expanded(
+              child: GestureDetector(
+                onTap: controller.isExercising ? null : controller.startDetection,
+                child: Opacity(
+                  opacity: controller.isExercising ? 0.4 : 1.0,
+                  child: Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: const Color(0xCD22C55E),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    Text(
-                      'Start',
-                      style: GoogleFonts.inter(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const FaIcon(
+                          FontAwesomeIcons.caretRight,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Start',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            letterSpacing: 0.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            // Stop 按钮
+            Expanded(
+              child: GestureDetector(
+                onTap: controller.stopDetection,
+                child: Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: const Color(0xCBEF4444),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.stop_rounded,
                         color: Colors.white,
-                        letterSpacing: 0.0,
+                        size: 24,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Text(
+                        'Stop',
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          letterSpacing: 0.0,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          GestureDetector(
-            onTap: controller.stopDetection,
-            child: Container(
-              width: 110,
-              height: 60,
-              decoration: BoxDecoration(
-                color: const Color(0xCBEF4444),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Icon(
-                      Icons.stop_rounded,
+            const SizedBox(width: 10),
+            // Recount 按钮
+            Expanded(
+              child: GestureDetector(
+                onTap: controller.recountDetection,
+                child: Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: const Color(0xCBEAB308),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Recount',
+                    style: GoogleFonts.inter(
                       color: Colors.white,
-                      size: 24,
+                      letterSpacing: 0.0,
                     ),
-                    Text(
-                      'Stop',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        letterSpacing: 0.0,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-          GestureDetector(
-            onTap: controller.recountDetection,
-            child: Container(
-              width: 110,
-              height: 60,
-              decoration: BoxDecoration(
-                color: const Color(0xCBEAB308),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                'Recount',
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  letterSpacing: 0.0,
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

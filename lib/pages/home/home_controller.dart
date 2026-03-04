@@ -2,27 +2,29 @@ import 'package:get/get.dart';
 import '../../services/bluetooth_service.dart';
 
 class HomeController extends GetxController {
-  final currentAction = 'push-up'.obs;
+  final currentAction = 'IDLE'.obs;
 
   bool get isConnected => BluetoothService.to.connectedDevice.value != null;
+  int get repCount => BluetoothService.to.repCount.value;
+  bool get isExercising => BluetoothService.to.isExercising.value;
 
   @override
   void onInit() {
     super.onInit();
-    ever(BluetoothService.to.connectedDevice, (_) {
-      update();
-    });
+    ever(BluetoothService.to.connectedDevice, (_) => update());
+    ever(BluetoothService.to.repCount, (_) => update());
+    ever(BluetoothService.to.isExercising, (_) => update());
   }
 
-  void startDetection() {
-    // TODO: implement start logic
+  Future<void> startDetection() async {
+    await BluetoothService.to.sendStart();
   }
 
-  void stopDetection() {
-    // TODO: implement stop logic
+  Future<void> stopDetection() async {
+    await BluetoothService.to.sendStop();
   }
 
-  void recountDetection() {
-    // TODO: implement recount logic
+  Future<void> recountDetection() async {
+    await BluetoothService.to.sendStop();
   }
 }
