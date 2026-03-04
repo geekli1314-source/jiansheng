@@ -247,7 +247,8 @@ class BluetoothService extends GetxService {
             await char.setNotifyValue(true);
             print('[BLE] ✓ repCount 特征订阅成功');
             _repCountSubscription?.cancel();
-            _repCountSubscription = char.lastValueStream.listen((value) {
+            // 使用 onValueReceived 接收板子主动 Notify 推送
+            _repCountSubscription = char.onValueReceived.listen((value) {
               if (value.isNotEmpty) {
                 // 板子发送 int（4字节小端序）
                 int count = _bytesToInt(value);
