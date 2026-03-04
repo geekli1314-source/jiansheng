@@ -123,8 +123,49 @@ class HistoryController extends GetxController {
   }
 
   /// 选择日期
-  void selectDate(String date) {
+  Future<void> selectDate(String date) async {
     selectedDate.value = date;
+    await _loadDataByDate(date);
+  }
+
+  /// 清除日期筛选
+  Future<void> clearDateFilter() async {
+    selectedDate.value = '';
+    await loadInitialData();
+  }
+
+  /// 根据日期加载数据
+  Future<void> _loadDataByDate(String date) async {
+    isLoading.value = true;
+    try {
+      // 查询指定日期的数据
+      final summaries = await DatabaseService.to.getDaySummariesByDate(date);
+
+      // 转换为 DayRecord
+      final newRecords = summaries.map((summary) {
+        final activities = summary.actionCounts.entries.map((entry) {
+          return DayActivityItem(
+            icon: _getIconForType(entry.key),
+            iconColor: _getColorForType(entry.key),
+            name: _getActionName(entry.key),
+            value: '${entry.value}reps',
+          );
+        }).toList();
+
+        return DayRecord(
+          dayName: summary.dayName,
+          date: summary.date.toIso8601String().split('T')[0],
+          activities: activities,
+        );
+      }).toList();
+
+      records.value = newRecords;
+      hasMore.value = false; // 日期筛选时不支持分页
+    } catch (e) {
+      print('[History] 按日期加载数据失败: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// 获取动作类型对应的图标

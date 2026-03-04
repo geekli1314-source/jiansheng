@@ -7,6 +7,7 @@ class MyController extends GetxController {
   // 系统设置
   final autoConnectBluetooth = true.obs;
   final dataStorageLocation = 'this machine'.obs;
+  final useChineseLanguage = true.obs; // 语言设置：true=中文, false=英文
 
   // 用户信息
   final userName = 'Fitness User'.obs;
@@ -39,6 +40,12 @@ class MyController extends GetxController {
     final autoConnect = settings['auto_connect_bluetooth'];
     if (autoConnect != null) {
       autoConnectBluetooth.value = autoConnect == 'true';
+    }
+
+    // 加载语言设置
+    final language = settings['use_chinese_language'];
+    if (language != null) {
+      useChineseLanguage.value = language == 'true';
     }
 
     // 加载用户信息
@@ -123,5 +130,11 @@ class MyController extends GetxController {
   Future<void> clearAllData() async {
     await DatabaseService.to.clearAllRecords();
     await loadUserStats();
+  }
+
+  /// 切换语言设置
+  Future<void> toggleLanguage(bool useChinese) async {
+    useChineseLanguage.value = useChinese;
+    await DatabaseService.to.setSetting('use_chinese_language', useChinese.toString());
   }
 }

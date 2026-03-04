@@ -114,53 +114,75 @@ class DateSelector extends GetView<HistoryController> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-      child: GestureDetector(
-        onTap: () => _showDatePicker(context),
-        child: Container(
-          width: double.infinity,
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                blurRadius: 10,
-                color: Color(0x0C000000),
-                offset: Offset(0, 2),
+      child: Obx(() {
+        final hasDate = controller.selectedDate.value.isNotEmpty;
+        return Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _showDatePicker(context),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 10,
+                        color: Color(0x0C000000),
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          hasDate ? controller.selectedDate.value : 'Select date',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            letterSpacing: 0.0,
+                            color: hasDate
+                                ? const Color(0xFF1C1C1E)
+                                : const Color(0xFF9CA3AF),
+                            fontWeight: hasDate ? FontWeight.w500 : FontWeight.w400,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.calendar_month_rounded,
+                          color: Color(0xFF3B82F6),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (hasDate) ...[
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: () => controller.clearDateFilter(),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.clear,
+                    color: Color(0xFFEF4444),
+                    size: 20,
+                  ),
+                ),
               ),
             ],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Obx(() {
-                  final date = controller.selectedDate.value;
-                  return Text(
-                    date.isEmpty ? 'Select date' : date,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      letterSpacing: 0.0,
-                      color:
-                          date.isEmpty
-                              ? const Color(0xFF9CA3AF)
-                              : const Color(0xFF1C1C1E),
-                      fontWeight:
-                          date.isEmpty ? FontWeight.w400 : FontWeight.w500,
-                    ),
-                  );
-                }),
-                const Icon(
-                  Icons.calendar_month_rounded,
-                  color: Color(0xFF3B82F6),
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+          ],
+        );
+      }),
     );
   }
 }

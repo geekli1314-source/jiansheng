@@ -36,6 +36,25 @@ class ExerciseType {
     }
   }
 
+  /// 获取英文名称
+  static String getEnglishName(int type) {
+    switch (type) {
+      case bicepCurl:
+        return 'Bicep Curl';
+      case latPulldown:
+        return 'Lat Pulldown';
+      case pecFly:
+        return 'Pec Fly';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  /// 根据语言设置获取名称
+  static String getNameByLocale(int type, {bool isChinese = true}) {
+    return isChinese ? getChineseName(type) : getEnglishName(type);
+  }
+
   /// 获取图标资源路径
   static String getIconAsset(int type) {
     // 暂时使用通用图标，后续可替换为对应动作图标
@@ -157,12 +176,12 @@ class DatabaseService extends GetxService {
 
   /// 保存 BLE 接收到的次数
   /// [exerciseType] 运动类型: 1=二头弯举, 2=高位下拉, 3=蝴蝶机夹胸
-  Future<int> saveRepCount(int count, {int exerciseType = 1}) async {
+  Future<int> saveRepCount(int count, {int exerciseType = 1, bool useChinese = true}) async {
     final record = ActionRecord(
       timestamp: DateTime.now(),
       count: count,
       actionType: ExerciseType.getName(exerciseType),
-      actionName: ExerciseType.getChineseName(exerciseType),
+      actionName: ExerciseType.getNameByLocale(exerciseType, isChinese: useChinese),
     );
     return await insertRecord(record);
   }
@@ -337,6 +356,40 @@ class DatabaseService extends GetxService {
         actionCounts: entry.value,
       );
     }).toList();
+  }
+
+  /// 根据日期获取运动汇总（用于日期筛选）
+  Future<List<DayExerciseSummary>> getDaySummariesByDate(String dateStr) async {
+    final db = await initDatabase();
+
+    // 查询指定日期的所有动作统计
+    final result = await db.rawQuery('''
+      SELECT 
+        date(timestamp) as date,
+        actionType,
+        SUM(count) as total
+      FROM $_tableName
+      WHERE date(timestamp) = ?
+      GROUP BY actionType
+    ''', [dateStr]);
+
+    if (result.isEmpty) return [];
+
+    final Map<String, int> actionCounts = {};
+    for (final row in result) {
+      final actionType = row['actionType'] as String;
+      final total = row['total'] as int;
+      actionCounts[actionType] = total;
+    }
+
+    final date = DateTime.parse(dateStr);
+    return [
+      DayExerciseSummary(
+        date: date,
+        dayName: _getDayName(date),
+        actionCounts: actionCounts,
+      ),
+    ];
   }
 
   /// 获取总记录天数（用于判断是否还有更多数据）

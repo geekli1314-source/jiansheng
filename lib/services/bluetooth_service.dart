@@ -370,8 +370,16 @@ class BluetoothService extends GetxService {
       }
 
       if (increment > 0) {
-        await DatabaseService.to.saveRepCount(increment, exerciseType: _currentExerciseType);
-        print('[BLE] ✓ 次数已保存到数据库: +$increment (总次数: $count), 类型: ${ExerciseType.getChineseName(_currentExerciseType)}');
+        // 读取语言设置
+        final settings = await DatabaseService.to.getUserSettings();
+        final useChinese = settings['use_chinese_language'] != 'false';
+
+        await DatabaseService.to.saveRepCount(
+          increment,
+          exerciseType: _currentExerciseType,
+          useChinese: useChinese,
+        );
+        print('[BLE] ✓ 次数已保存到数据库: +$increment (总次数: $count), 类型: ${useChinese ? ExerciseType.getChineseName(_currentExerciseType) : ExerciseType.getEnglishName(_currentExerciseType)}');
 
         _lastSavedCount = count;
 

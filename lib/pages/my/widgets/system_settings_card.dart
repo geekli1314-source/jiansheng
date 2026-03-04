@@ -85,6 +85,47 @@ class SystemSettingsCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 16),
+              // 语言设置
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.language,
+                      color: Color(0xFF8B5CF6),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Chinese language',
+                      style: GoogleFonts.inter(letterSpacing: 0.0),
+                    ),
+                  ),
+                  Obx(
+                    () => Switch(
+                      value: controller.useChineseLanguage.value,
+                      onChanged: controller.toggleLanguage,
+                      thumbColor: WidgetStateProperty.all(Colors.white),
+                      trackColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.selected)) {
+                          return const Color(0xFF8B5CF6);
+                        }
+                        return const Color(0xFFE5E7EB);
+                      }),
+                      trackOutlineColor:
+                          WidgetStateProperty.all(Colors.transparent),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               // 数据存储位置
               Row(
                 children: [
@@ -386,6 +427,10 @@ class SystemSettingsCard extends GetView<MyController> {
     final now = DateTime.now();
     final sixMonthsAgo = now.subtract(const Duration(days: 180));
 
+    // 读取当前语言设置
+    final settings = await DatabaseService.to.getUserSettings();
+    final useChinese = settings['use_chinese_language'] != 'false';
+
     int generatedCount = 0;
 
     // 遍历过去6个月的每一天
@@ -421,7 +466,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 timestamp: timestamp,
                 count: count,
                 actionType: ExerciseType.getName(exerciseType),
-                actionName: ExerciseType.getChineseName(exerciseType),
+                actionName: ExerciseType.getNameByLocale(exerciseType, isChinese: useChinese),
               );
 
               await DatabaseService.to.insertRecord(record);
