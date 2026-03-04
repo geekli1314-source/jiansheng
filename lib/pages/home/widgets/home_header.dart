@@ -17,7 +17,7 @@ class HomeHeader extends StatelessWidget {
                 'Fitness Movement Detection',
                 style: GoogleFonts.inter(
                   color: Colors.black,
-                  fontSize: 24,
+                  fontSize: 22,
                   letterSpacing: 0.0,
                   fontWeight: FontWeight.w600,
                 ),
