@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../services/bluetooth_service.dart';
 import '../../services/database_service.dart';
 
-/// 今日运动项
+/// Today's activity item
 class TodayActivity {
   final String actionType;
   final String actionName;
@@ -24,7 +24,7 @@ class TodayActivity {
 
 class HomeController extends GetxController {
   final currentAction = 'IDLE'.obs;
-  final currentExerciseType = 1.obs; // 当前运动类型: 1=二头弯举, 2=高位下拉, 3=蝴蝶机夹胸
+  final currentExerciseType = 1.obs; // Current exercise type: 1=Bicep Curl, 2=Lat Pulldown, 3=Pec Fly
   final todayActivities = <TodayActivity>[].obs;
 
   bool get isConnected => BluetoothService.to.connectedDevice.value != null;
@@ -40,11 +40,11 @@ class HomeController extends GetxController {
     loadTodayActivities();
   }
 
-  /// 加载今日运动数据
+  /// Load today's exercise data
   Future<void> loadTodayActivities() async {
     final records = await DatabaseService.to.getTodayRecords();
 
-    // 按动作类型分组统计
+    // Group and count by action type
     final Map<String, List<ActionRecord>> grouped = {};
     for (final record in records) {
       grouped.putIfAbsent(record.actionType, () => []);
@@ -71,14 +71,14 @@ class HomeController extends GetxController {
     todayActivities.value = activities;
   }
 
-  /// 更新当前运动类型（当收到BLE回调时调用）
+  /// Update current exercise type (called when receiving BLE callback)
   void updateCurrentExerciseType(int type) {
     currentExerciseType.value = type;
     currentAction.value = ExerciseType.getName(type);
-    loadTodayActivities(); // 刷新今日数据
+    loadTodayActivities(); // Refresh today's data
   }
 
-  /// 获取动作类型对应的图标数据
+  /// Get icon data for action type
   Map<String, dynamic> _getIconForType(String type) {
     switch (type) {
       case 'bicep_curl':

@@ -26,7 +26,7 @@ class DateSelector extends GetView<HistoryController> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 顶部拖动条
+              // Top drag bar
               Container(
                 margin: const EdgeInsets.only(top: 12),
                 width: 40,
@@ -36,7 +36,7 @@ class DateSelector extends GetView<HistoryController> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              // 标题栏
+              // Title bar
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -85,12 +85,12 @@ class DateSelector extends GetView<HistoryController> {
                   ],
                 ),
               ),
-              // 分割线
+              // Divider line
               Container(
                 height: 0.5,
                 color: const Color(0xFFD1D1D6),
               ),
-              // iOS 滚轮日期选择器
+              // iOS wheel date picker
               SizedBox(
                 height: 260,
                 child: CupertinoDatePicker(

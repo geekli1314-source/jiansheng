@@ -29,7 +29,7 @@ class TrainingObjectivesCard extends GetView<MyController> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 标题行
+              // Title row
               Row(
                 children: [
                   Text(
@@ -43,7 +43,7 @@ class TrainingObjectivesCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 20),
-              // 日目标频次
+              // Daily target frequency
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -62,7 +62,7 @@ class TrainingObjectivesCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 16),
-              // 提醒时间
+              // Reminder time
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -81,7 +81,7 @@ class TrainingObjectivesCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 20),
-              // 今日完成进度
+              // Today's completion progress
               Column(
                 children: [
                   Row(
@@ -123,7 +123,7 @@ class TrainingObjectivesCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 16),
-              // 统计数据
+              // Statistics
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

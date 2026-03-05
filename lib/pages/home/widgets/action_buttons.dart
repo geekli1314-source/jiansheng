@@ -14,7 +14,7 @@ class ActionButtons extends GetView<HomeController> {
       child: GetBuilder<HomeController>(
         builder: (_) => Row(
           children: [
-            // Start 按钮
+            // Start button
             Expanded(
               child: GestureDetector(
                 onTap: controller.isExercising ? null : controller.startDetection,
@@ -49,7 +49,7 @@ class ActionButtons extends GetView<HomeController> {
               ),
             ),
             const SizedBox(width: 10),
-            // Stop 按钮
+            // Stop button
             Expanded(
               child: GestureDetector(
                 onTap: controller.stopDetection,
@@ -81,7 +81,7 @@ class ActionButtons extends GetView<HomeController> {
               ),
             ),
             const SizedBox(width: 10),
-            // Recount 按钮
+            // Recount button
             Expanded(
               child: GestureDetector(
                 onTap: controller.recountDetection,

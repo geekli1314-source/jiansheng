@@ -4,24 +4,24 @@ import '../../services/database_service.dart';
 import '../../services/bluetooth_service.dart';
 
 class MyController extends GetxController {
-  // 系统设置
+  // System settings
   final autoConnectBluetooth = true.obs;
   final dataStorageLocation = 'this machine'.obs;
-  final useChineseLanguage = true.obs; // 语言设置：true=中文, false=英文
+  final useChineseLanguage = true.obs; // Language setting: true=Chinese, false=English
 
-  // 用户信息
+  // User info
   final userName = 'Fitness User'.obs;
   final userGender = 'man'.obs;
   final userWeight = '75'.obs;
   final userAvatar = 'assets/images/avatar.jpg'.obs;
 
-  // 训练目标
+  // Training goals
   final dailyTarget = 100.obs;
   final reminderTime = '08:00'.obs;
   final todayCompleted = 0.obs;
   final todayTarget = 15.obs;
 
-  // 统计数据
+  // Statistics
   final totalReps = 0.obs;
   final consecutiveDays = 0.obs;
 
@@ -32,23 +32,23 @@ class MyController extends GetxController {
     loadUserStats();
   }
 
-  /// 加载设置
+  /// Load settings
   Future<void> loadSettings() async {
     final settings = await DatabaseService.to.getUserSettings();
 
-    // 加载蓝牙自动连接设置
+    // Load Bluetooth auto connect setting
     final autoConnect = settings['auto_connect_bluetooth'];
     if (autoConnect != null) {
       autoConnectBluetooth.value = autoConnect == 'true';
     }
 
-    // 加载语言设置
+    // Load language setting
     final language = settings['use_chinese_language'];
     if (language != null) {
       useChineseLanguage.value = language == 'true';
     }
 
-    // 加载用户信息
+    // Load user info
     if (settings['user_name'] != null) {
       userName.value = settings['user_name']!;
     }
@@ -59,7 +59,7 @@ class MyController extends GetxController {
       userWeight.value = settings['user_weight']!;
     }
 
-    // 加载训练目标
+    // Load training goals
     if (settings['daily_target'] != null) {
       dailyTarget.value = int.tryParse(settings['daily_target']!) ?? 100;
     }
@@ -68,71 +68,71 @@ class MyController extends GetxController {
     }
   }
 
-  /// 加载用户统计数据
+  /// Load user statistics
   Future<void> loadUserStats() async {
-    // 获取今日完成次数
+    // Get today's completed count
     todayCompleted.value = await DatabaseService.to.getTodayTotalCount();
 
-    // 获取总运动次数
+    // Get total exercise reps
     totalReps.value = await DatabaseService.to.getUserTotalReps();
 
-    // 获取连续运动天数
+    // Get consecutive exercise days
     consecutiveDays.value = await DatabaseService.to.getConsecutiveDays();
   }
 
-  /// 切换蓝牙自动连接
+  /// Toggle Bluetooth auto connect
   Future<void> toggleAutoConnect(bool value) async {
     autoConnectBluetooth.value = value;
     await DatabaseService.to.setSetting('auto_connect_bluetooth', value.toString());
 
-    // 如果关闭自动连接，清除默认设备
+    // If auto connect is disabled, clear default device
     if (!value) {
       await DatabaseService.to.clearDefaultDevice();
     }
   }
 
-  /// 更新用户名
+  /// Update user name
   Future<void> updateUserName(String name) async {
     userName.value = name;
     await DatabaseService.to.setSetting('user_name', name);
   }
 
-  /// 更新用户体重
+  /// Update user weight
   Future<void> updateUserWeight(String weight) async {
     userWeight.value = weight;
     await DatabaseService.to.setSetting('user_weight', weight);
   }
 
-  /// 更新每日目标
+  /// Update daily target
   Future<void> updateDailyTarget(int target) async {
     dailyTarget.value = target;
     await DatabaseService.to.setSetting('daily_target', target.toString());
   }
 
-  /// 更新提醒时间
+  /// Update reminder time
   Future<void> updateReminderTime(String time) async {
     reminderTime.value = time;
     await DatabaseService.to.setSetting('reminder_time', time);
   }
 
-  /// 获取今日完成进度（0.0 - 1.0）
+  /// Get today's completion progress (0.0 - 1.0)
   double get todayProgress {
     if (todayTarget.value == 0) return 0.0;
     return (todayCompleted.value / todayTarget.value).clamp(0.0, 1.0);
   }
 
-  /// 获取今日完成显示文本
+  /// Get today's completion display text
   String get todayProgressText {
     return '$todayCompleted / $todayTarget';
   }
 
-  /// 清除所有数据
+  /// Clear all data
   Future<void> clearAllData() async {
     await DatabaseService.to.clearAllRecords();
     await loadUserStats();
   }
 
-  /// 切换语言设置
+  /// Toggle language setting
   Future<void> toggleLanguage(bool useChinese) async {
     useChineseLanguage.value = useChinese;
     await DatabaseService.to.setSetting('use_chinese_language', useChinese.toString());

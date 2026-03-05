@@ -30,7 +30,7 @@ class CurrentActionCard extends GetView<HomeController> {
             builder: (_) => Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // 左侧：大数字次数
+                // Left side: large rep count
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -58,12 +58,12 @@ class CurrentActionCard extends GetView<HomeController> {
                     ],
                   ),
                 ),
-                // 右侧：状态 + 当前动作名
+                // Right side: status + current action name
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // 运动状态 badge
+                    // Exercise status badge
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -104,7 +104,7 @@ class CurrentActionCard extends GetView<HomeController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // 当前动作名
+                    // Current action name
                     Text(
                       'Action',
                       style: GoogleFonts.inter(

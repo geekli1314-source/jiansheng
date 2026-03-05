@@ -30,7 +30,7 @@ class SystemSettingsCard extends GetView<MyController> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 标题
+              // Title
               Row(
                 children: [
                   Text(
@@ -44,7 +44,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 20),
-              // 蓝牙自动连接
+              // Bluetooth auto connect
               Row(
                 children: [
                   Container(
@@ -85,7 +85,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 16),
-              // 语言设置
+              // Language setting
               Row(
                 children: [
                   Container(
@@ -126,7 +126,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 16),
-              // 数据存储位置
+              // Data storage location
               Row(
                 children: [
                   Container(
@@ -159,7 +159,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 ],
               ),
               const SizedBox(height: 16),
-              // 清除数据
+              // Clear data
               InkWell(
                 onTap: () => _showClearDataDialog(context),
                 child: Row(
@@ -193,7 +193,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 ),
               ),
               const SizedBox(height: 16),
-              // 关于应用
+              // About app
               InkWell(
                 onTap: () => _showAboutDialog(context),
                 child: Row(
@@ -227,7 +227,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 ),
               ),
               const SizedBox(height: 16),
-              // 帮助与反馈
+              // Help & feedback
               InkWell(
                 onTap: () => _showHelpDialog(context),
                 child: Row(
@@ -261,7 +261,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 ),
               ),
               const SizedBox(height: 16),
-              // 生成测试数据
+              // Generate test data
               InkWell(
                 onTap: () => _showGenerateTestDataDialog(context),
                 child: Row(
@@ -414,7 +414,7 @@ class SystemSettingsCard extends GetView<MyController> {
     );
   }
 
-  /// 生成测试数据
+  /// Generate test data
   Future<void> _generateTestData() async {
     Get.snackbar(
       'Generating',
@@ -427,31 +427,31 @@ class SystemSettingsCard extends GetView<MyController> {
     final now = DateTime.now();
     final sixMonthsAgo = now.subtract(const Duration(days: 180));
 
-    // 读取当前语言设置
+    // Read current language setting
     final settings = await DatabaseService.to.getUserSettings();
     final useChinese = settings['use_chinese_language'] != 'false';
 
     int generatedCount = 0;
 
-    // 遍历过去6个月的每一天
+    // Iterate through each day of the past 6 months
     for (int day = 0; day < 180; day++) {
       final date = sixMonthsAgo.add(Duration(days: day));
 
-      // 随机决定这一天是否有运动 (70%概率)
+      // Randomly decide if there is exercise on this day (70% probability)
       if (random.nextDouble() > 0.3) {
-        // 为每种运动类型生成数据
+        // Generate data for each exercise type
         for (int exerciseType = 1; exerciseType <= 3; exerciseType++) {
-          // 随机决定这种运动是否做了 (60%概率)
+          // Randomly decide if this exercise was done (60% probability)
           if (random.nextDouble() > 0.4) {
-            // 生成1-5组数据
+            // Generate 1-5 groups of data
             final groups = random.nextInt(5) + 1;
 
             for (int g = 0; g < groups; g++) {
-              // 每组8-15次
+              // 8-15 reps per group
               final count = random.nextInt(8) + 8;
 
-              // 随机时间（当天任意时间）
-              final hour = random.nextInt(14) + 8; // 8-21点
+              // Random time (any time of the day)
+              final hour = random.nextInt(14) + 8; // 8-21 o'clock
               final minute = random.nextInt(60);
               final timestamp = DateTime(
                 date.year,
@@ -461,7 +461,7 @@ class SystemSettingsCard extends GetView<MyController> {
                 minute,
               );
 
-              // 保存到数据库
+              // Save to database
               final record = ActionRecord(
                 timestamp: timestamp,
                 count: count,
@@ -477,7 +477,7 @@ class SystemSettingsCard extends GetView<MyController> {
       }
     }
 
-    // 刷新数据
+    // Refresh data
     await controller.loadUserStats();
 
     Get.snackbar(

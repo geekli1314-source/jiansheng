@@ -2,13 +2,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:get/get.dart';
 
-/// 运动类型常量
+/// Exercise type constants
 class ExerciseType {
-  static const int bicepCurl = 1;      // 二头弯举
-  static const int latPulldown = 2;    // 高位下拉
-  static const int pecFly = 3;         // 蝴蝶机夹胸
+  static const int bicepCurl = 1;      // Bicep Curl
+  static const int latPulldown = 2;    // Lat Pulldown
+  static const int pecFly = 3;         // Pec Fly
 
-  /// 获取运动类型名称
+  /// Get exercise type name
   static String getName(int type) {
     switch (type) {
       case bicepCurl:
@@ -22,7 +22,7 @@ class ExerciseType {
     }
   }
 
-  /// 获取中文名称
+  /// Get Chinese name
   static String getChineseName(int type) {
     switch (type) {
       case bicepCurl:
@@ -36,7 +36,7 @@ class ExerciseType {
     }
   }
 
-  /// 获取英文名称
+  /// Get English name
   static String getEnglishName(int type) {
     switch (type) {
       case bicepCurl:
@@ -50,14 +50,14 @@ class ExerciseType {
     }
   }
 
-  /// 根据语言设置获取名称
+  /// Get name by locale setting
   static String getNameByLocale(int type, {bool isChinese = true}) {
     return isChinese ? getChineseName(type) : getEnglishName(type);
   }
 
-  /// 获取图标资源路径
+  /// Get icon asset path
   static String getIconAsset(int type) {
-    // 暂时使用通用图标，后续可替换为对应动作图标
+    // Temporarily use generic icon, can be replaced with action-specific icons later
     switch (type) {
       case bicepCurl:
       case latPulldown:
@@ -68,7 +68,7 @@ class ExerciseType {
   }
 }
 
-/// 动作记录模型
+/// Action record model
 class ActionRecord {
   final int? id;
   final DateTime timestamp;
@@ -105,7 +105,7 @@ class ActionRecord {
   }
 }
 
-/// 按日期分组的运动数据 - 用于记录页面展示
+/// Exercise data grouped by date - for history page display
 class DayExerciseSummary {
   final DateTime date;
   final String dayName;
@@ -117,11 +117,11 @@ class DayExerciseSummary {
     required this.actionCounts,
   });
 
-  /// 获取该日总次数
+  /// Get total count for the day
   int get totalCount => actionCounts.values.fold(0, (sum, c) => sum + c);
 }
 
-/// SQLite 数据库服务
+/// SQLite database service
 class DatabaseService extends GetxService {
   static DatabaseService get to => Get.find();
 
@@ -136,7 +136,7 @@ class DatabaseService extends GetxService {
     initDatabase();
   }
 
-  /// 初始化数据库
+  /// Initialize database
   Future<Database> initDatabase() async {
     if (_db != null) return _db!;
 
@@ -156,7 +156,7 @@ class DatabaseService extends GetxService {
             actionName TEXT NOT NULL
           )
         ''');
-        // 创建设置表用于存储默认设备等配置
+        // Create settings table for storing default device and other configurations
         await db.execute('''
           CREATE TABLE settings (
             key TEXT PRIMARY KEY,
@@ -168,14 +168,14 @@ class DatabaseService extends GetxService {
     return _db!;
   }
 
-  /// 插入动作记录
+  /// Insert action record
   Future<int> insertRecord(ActionRecord record) async {
     final db = await initDatabase();
     return await db.insert(_tableName, record.toMap());
   }
 
-  /// 保存 BLE 接收到的次数
-  /// [exerciseType] 运动类型: 1=二头弯举, 2=高位下拉, 3=蝴蝶机夹胸
+  /// Save count received from BLE
+  /// [exerciseType] Exercise type: 1=Bicep Curl, 2=Lat Pulldown, 3=Pec Fly
   Future<int> saveRepCount(int count, {int exerciseType = 1, bool useChinese = true}) async {
     final record = ActionRecord(
       timestamp: DateTime.now(),
@@ -186,14 +186,14 @@ class DatabaseService extends GetxService {
     return await insertRecord(record);
   }
 
-  /// 获取所有记录
+  /// Get all records
   Future<List<ActionRecord>> getAllRecords() async {
     final db = await initDatabase();
     final List<Map<String, dynamic>> maps = await db.query(_tableName, orderBy: 'timestamp DESC');
     return maps.map((map) => ActionRecord.fromMap(map)).toList();
   }
 
-  /// 获取今日记录
+  /// Get today's records
   Future<List<ActionRecord>> getTodayRecords() async {
     final db = await initDatabase();
     final now = DateTime.now();
@@ -209,7 +209,7 @@ class DatabaseService extends GetxService {
     return maps.map((map) => ActionRecord.fromMap(map)).toList();
   }
 
-  /// 获取今日总次数
+  /// Get today's total count
   Future<int> getTodayTotalCount() async {
     final db = await initDatabase();
     final now = DateTime.now();
@@ -223,7 +223,7 @@ class DatabaseService extends GetxService {
     return result.first['total'] as int? ?? 0;
   }
 
-  /// 获取指定日期记录
+  /// Get records by date
   Future<List<ActionRecord>> getRecordsByDate(DateTime date) async {
     final db = await initDatabase();
     final start = DateTime(date.year, date.month, date.day);
@@ -238,7 +238,7 @@ class DatabaseService extends GetxService {
     return maps.map((map) => ActionRecord.fromMap(map)).toList();
   }
 
-  /// 获取指定日期各动作类型的统计
+  /// Get action counts by date
   Future<Map<String, int>> getActionCountsByDate(DateTime date) async {
     final db = await initDatabase();
     final start = DateTime(date.year, date.month, date.day);
@@ -256,7 +256,7 @@ class DatabaseService extends GetxService {
     return counts;
   }
 
-  /// 获取指定日期总次数
+  /// Get total count for specified date
   Future<int> getDateTotalCount(DateTime date) async {
     final db = await initDatabase();
     final start = DateTime(date.year, date.month, date.day);
@@ -269,7 +269,7 @@ class DatabaseService extends GetxService {
     return result.first['total'] as int? ?? 0;
   }
 
-  /// 获取最近 N 天的每日汇总（用于记录页面）
+  /// Get daily summaries for recent N days (for history page)
   Future<List<DayExerciseSummary>> getRecentDaySummaries(int days) async {
     final db = await initDatabase();
     final now = DateTime.now();
@@ -306,14 +306,14 @@ class DatabaseService extends GetxService {
     }).toList();
   }
 
-  /// 分页获取历史记录（用于记录页面上拉加载）
-  /// [page] 页码，从0开始
-  /// [pageSize] 每页天数
+  /// Get paginated history records (for pull-up loading on history page)
+  /// [page] Page number, starting from 0
+  /// [pageSize] Days per page
   Future<List<DayExerciseSummary>> getDaySummariesByPage(int page, int pageSize) async {
     final db = await initDatabase();
     final offset = page * pageSize;
 
-    // 先获取有记录的所有日期（去重）
+    // First get all dates with records (distinct)
     final dateResult = await db.rawQuery('''
       SELECT DISTINCT date(timestamp) as date
       FROM $_tableName
@@ -325,7 +325,7 @@ class DatabaseService extends GetxService {
 
     final dates = dateResult.map((r) => r['date'] as String).toList();
 
-    // 获取这些日期的所有动作统计
+    // Get all action statistics for these dates
     final placeholders = List.filled(dates.length, '?').join(',');
     final result = await db.rawQuery('''
       SELECT 
@@ -358,11 +358,11 @@ class DatabaseService extends GetxService {
     }).toList();
   }
 
-  /// 根据日期获取运动汇总（用于日期筛选）
+  /// Get exercise summary by date (for date filtering)
   Future<List<DayExerciseSummary>> getDaySummariesByDate(String dateStr) async {
     final db = await initDatabase();
 
-    // 查询指定日期的所有动作统计
+    // Query all action statistics for specified date
     final result = await db.rawQuery('''
       SELECT 
         date(timestamp) as date,
@@ -392,7 +392,7 @@ class DatabaseService extends GetxService {
     ];
   }
 
-  /// 获取总记录天数（用于判断是否还有更多数据）
+  /// Get total record days (for checking if there is more data)
   Future<int> getTotalRecordDays() async {
     final db = await initDatabase();
     final result = await db.rawQuery('''
@@ -402,11 +402,11 @@ class DatabaseService extends GetxService {
     return result.first['count'] as int? ?? 0;
   }
 
-  // ==================== 用户设置管理 ====================
+  // ==================== User Settings Management ====================
 
   static const String _userSettingsKey = 'user_settings';
 
-  /// 保存用户设置
+  /// Save user settings
   Future<void> saveUserSettings(Map<String, dynamic> settings) async {
     final db = await initDatabase();
     final value = settings.entries.map((e) => '${e.key}=${e.value}').join('&');
@@ -417,7 +417,7 @@ class DatabaseService extends GetxService {
     );
   }
 
-  /// 获取用户设置
+  /// Get user settings
   Future<Map<String, String>> getUserSettings() async {
     final db = await initDatabase();
     final result = await db.query(
@@ -438,20 +438,20 @@ class DatabaseService extends GetxService {
     return settings;
   }
 
-  /// 保存单个设置项
+  /// Save single setting item
   Future<void> setSetting(String key, String value) async {
     final settings = await getUserSettings();
     settings[key] = value;
     await saveUserSettings(settings);
   }
 
-  /// 获取单个设置项
+  /// Get single setting item
   Future<String?> getSetting(String key) async {
     final settings = await getUserSettings();
     return settings[key];
   }
 
-  /// 获取用户总运动次数
+  /// Get user total exercise reps
   Future<int> getUserTotalReps() async {
     final db = await initDatabase();
     final result = await db.rawQuery(
@@ -460,7 +460,7 @@ class DatabaseService extends GetxService {
     return result.first['total'] as int? ?? 0;
   }
 
-  /// 获取用户连续运动天数
+  /// Get user consecutive exercise days
   Future<int> getConsecutiveDays() async {
     final db = await initDatabase();
     final result = await db.rawQuery('''
@@ -490,8 +490,8 @@ class DatabaseService extends GetxService {
     return consecutiveDays;
   }
 
-  /// 获取周统计数据（用于图表）
-  /// 返回最近7天，每天各动作类型的次数
+  /// Get weekly statistics (for charts)
+  /// Returns last 7 days, count for each action type per day
   Future<Map<String, List<double>>> getWeeklyStats() async {
     final db = await initDatabase();
     final now = DateTime.now();
@@ -507,7 +507,7 @@ class DatabaseService extends GetxService {
       GROUP BY date(timestamp), actionType
     ''', [weekAgo.toIso8601String()]);
 
-    // 初始化7天数据为0
+    // Initialize 7 days data to 0
     final Map<String, List<double>> stats = {
       'bicep_curl': List.filled(7, 0.0),
       'lat_pulldown': List.filled(7, 0.0),
@@ -528,8 +528,8 @@ class DatabaseService extends GetxService {
     return stats;
   }
 
-  /// 获取月统计数据（用于图表）
-  /// 返回最近4周，每周各动作类型的次数总和
+  /// Get monthly statistics (for charts)
+  /// Returns last 4 weeks, total count for each action type per week
   Future<Map<String, List<double>>> getMonthlyStats() async {
     final db = await initDatabase();
     final now = DateTime.now();
@@ -557,15 +557,15 @@ class DatabaseService extends GetxService {
       final total = (row['total'] as num).toDouble();
 
       if (weekAgo >= 0 && weekAgo < 4 && stats.containsKey(actionType)) {
-        stats[actionType]![3 - weekAgo] = total; // 倒序填充
+        stats[actionType]![3 - weekAgo] = total; // Fill in reverse order
       }
     }
 
     return stats;
   }
 
-  /// 获取年统计数据（用于图表）
-  /// 返回最近12个月，每月各动作类型的次数总和
+  /// Get yearly statistics (for charts)
+  /// Returns last 12 months, total count for each action type per month
   Future<Map<String, List<double>>> getYearlyStats() async {
     final db = await initDatabase();
     final now = DateTime.now();
@@ -603,7 +603,7 @@ class DatabaseService extends GetxService {
     return stats;
   }
 
-  /// 获取最近 N 条记录
+  /// Get recent N records
   Future<List<ActionRecord>> getRecentRecords(int limit) async {
     final db = await initDatabase();
     final List<Map<String, dynamic>> maps = await db.query(
@@ -614,30 +614,30 @@ class DatabaseService extends GetxService {
     return maps.map((map) => ActionRecord.fromMap(map)).toList();
   }
 
-  /// 删除单条记录
+  /// Delete single record
   Future<int> deleteRecord(int id) async {
     final db = await initDatabase();
     return await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 
-  /// 清空所有记录
+  /// Clear all records
   Future<int> clearAllRecords() async {
     final db = await initDatabase();
     return await db.delete(_tableName);
   }
 
-  /// 获取记录总数
+  /// Get record count
   Future<int> getRecordCount() async {
     final db = await initDatabase();
     final result = await db.rawQuery('SELECT COUNT(*) as count FROM $_tableName');
     return result.first['count'] as int? ?? 0;
   }
 
-  // ==================== 默认设备管理 ====================
+  // ==================== Default Device Management ====================
 
   static const String _defaultDeviceKey = 'default_device';
 
-  /// 保存默认设备
+  /// Save default device
   Future<void> saveDefaultDevice(String deviceId, String deviceName) async {
     final db = await initDatabase();
     await db.insert(
@@ -647,7 +647,7 @@ class DatabaseService extends GetxService {
     );
   }
 
-  /// 获取默认设备
+  /// Get default device
   Future<Map<String, String>?> getDefaultDevice() async {
     final db = await initDatabase();
     final result = await db.query(
@@ -664,7 +664,7 @@ class DatabaseService extends GetxService {
     return {'id': parts[0], 'name': parts[1]};
   }
 
-  /// 清除默认设备
+  /// Clear default device
   Future<void> clearDefaultDevice() async {
     final db = await initDatabase();
     await db.delete(
@@ -674,7 +674,7 @@ class DatabaseService extends GetxService {
     );
   }
 
-  /// 获取星期名称
+  /// Get day of week name
   String _getDayName(DateTime date) {
     final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     return days[date.weekday - 1];

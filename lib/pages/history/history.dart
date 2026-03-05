@@ -33,7 +33,7 @@ class HistoryWidget extends GetView<HistoryController> {
             final isDateFiltered = controller.selectedDate.value.isNotEmpty;
             return NotificationListener<ScrollNotification>(
               onNotification: (ScrollNotification scrollInfo) {
-                // 上拉加载更多（仅在非日期筛选模式下）
+                // Pull up to load more (only in non-date filter mode)
                 if (!isDateFiltered &&
                     scrollInfo is ScrollEndNotification &&
                     scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 50) {
@@ -83,7 +83,7 @@ class HistoryWidget extends GetView<HistoryController> {
                         ),
                       );
                     }),
-                    // 加载更多指示器（仅在非日期筛选模式下显示）
+                    // Load more indicator (only show in non-date filter mode)
                     Obx(() {
                       if (isDateFiltered) {
                         return const SliverToBoxAdapter(child: SizedBox.shrink());

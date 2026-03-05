@@ -25,24 +25,24 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // App 启动后延迟自动连接默认设备
+    // Auto connect to default device after app launch
     Future.delayed(const Duration(seconds: 2), () {
       _autoConnectDevice();
     });
   }
 
-  /// 自动连接默认设备
+  /// Auto connect to default device
   void _autoConnectDevice() async {
-    // 检查是否开启了自动连接
+    // Check if auto connect is enabled
     final settings = await DatabaseService.to.getUserSettings();
     final autoConnect = settings['auto_connect_bluetooth'];
 
-    // 默认开启，如果设置不存在或设置为true则自动连接
+    // Default enabled, auto connect if setting not exists or set to true
     if (autoConnect == null || autoConnect == 'true') {
       final bluetoothService = Get.find<BluetoothService>();
       await bluetoothService.autoConnectDefaultDevice();
     } else {
-      print('[App] 自动连接已关闭，跳过自动连接');
+      print('[App] Auto connect is disabled, skipping auto connect');
     }
   }
 

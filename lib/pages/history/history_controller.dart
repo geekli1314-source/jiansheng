@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../services/database_service.dart';
 
-/// 每日运动项
+/// Daily activity item
 class DayActivityItem {
   final IconData icon;
   final Color iconColor;
@@ -17,7 +17,7 @@ class DayActivityItem {
   });
 }
 
-/// 每日记录
+/// Daily record
 class DayRecord {
   final String dayName;
   final String date;
@@ -33,22 +33,22 @@ class DayRecord {
 class HistoryController extends GetxController {
   final selectedDate = ''.obs;
 
-  /// 记录列表
+  /// Record list
   final records = <DayRecord>[].obs;
 
-  /// 当前页码
+  /// Current page number
   int _currentPage = 0;
 
-  /// 每页显示天数
+  /// Days per page
   static const int _pageSize = 10;
 
-  /// 是否正在加载
+  /// Whether loading
   final isLoading = false.obs;
 
-  /// 是否还有更多数据
+  /// Whether has more data
   final hasMore = true.obs;
 
-  /// 总记录天数
+  /// Total record days
   int _totalDays = 0;
 
   @override
@@ -57,7 +57,7 @@ class HistoryController extends GetxController {
     loadInitialData();
   }
 
-  /// 加载初始数据
+  /// Load initial data
   Future<void> loadInitialData() async {
     _currentPage = 0;
     records.clear();
@@ -65,29 +65,29 @@ class HistoryController extends GetxController {
     await _loadData();
   }
 
-  /// 加载更多数据（上拉加载）
+  /// Load more data (pull up to load)
   Future<void> loadMoreData() async {
     if (isLoading.value || !hasMore.value) return;
     _currentPage++;
     await _loadData();
   }
 
-  /// 加载数据
+  /// Load data
   Future<void> _loadData() async {
     isLoading.value = true;
     try {
-      // 获取总天数（首次加载时）
+      // Get total days (on first load)
       if (_currentPage == 0) {
         _totalDays = await DatabaseService.to.getTotalRecordDays();
       }
 
-      // 分页查询
+      // Paginated query
       final summaries = await DatabaseService.to.getDaySummariesByPage(
         _currentPage,
         _pageSize,
       );
 
-      // 转换为 DayRecord
+      // Convert to DayRecord
       final newRecords = summaries.map((summary) {
         final activities = summary.actionCounts.entries.map((entry) {
           return DayActivityItem(
@@ -105,43 +105,43 @@ class HistoryController extends GetxController {
         );
       }).toList();
 
-      // 添加到列表
+      // Add to list
       if (_currentPage == 0) {
         records.value = newRecords;
       } else {
         records.addAll(newRecords);
       }
 
-      // 检查是否还有更多
+      // Check if there is more data
       final loadedDays = (_currentPage + 1) * _pageSize;
       hasMore.value = loadedDays < _totalDays && newRecords.length == _pageSize;
     } catch (e) {
-      print('[History] 加载数据失败: $e');
+      print('[History] Failed to load data: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// 选择日期
+  /// Select date
   Future<void> selectDate(String date) async {
     selectedDate.value = date;
     await _loadDataByDate(date);
   }
 
-  /// 清除日期筛选
+  /// Clear date filter
   Future<void> clearDateFilter() async {
     selectedDate.value = '';
     await loadInitialData();
   }
 
-  /// 根据日期加载数据
+  /// Load data by date
   Future<void> _loadDataByDate(String date) async {
     isLoading.value = true;
     try {
-      // 查询指定日期的数据
+      // Query data for specified date
       final summaries = await DatabaseService.to.getDaySummariesByDate(date);
 
-      // 转换为 DayRecord
+      // Convert to DayRecord
       final newRecords = summaries.map((summary) {
         final activities = summary.actionCounts.entries.map((entry) {
           return DayActivityItem(
@@ -160,15 +160,15 @@ class HistoryController extends GetxController {
       }).toList();
 
       records.value = newRecords;
-      hasMore.value = false; // 日期筛选时不支持分页
+      hasMore.value = false; // Date filter does not support pagination
     } catch (e) {
-      print('[History] 按日期加载数据失败: $e');
+      print('[History] Failed to load data by date: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// 获取动作类型对应的图标
+  /// Get icon for action type
   IconData _getIconForType(String type) {
     switch (type) {
       case 'bicep_curl':
@@ -182,7 +182,7 @@ class HistoryController extends GetxController {
     }
   }
 
-  /// 获取动作类型对应的颜色
+  /// Get color for action type
   Color _getColorForType(String type) {
     switch (type) {
       case 'bicep_curl':
@@ -196,7 +196,7 @@ class HistoryController extends GetxController {
     }
   }
 
-  /// 获取动作类型对应的中文名称
+  /// Get Chinese name for action type
   String _getActionName(String type) {
     switch (type) {
       case 'bicep_curl':

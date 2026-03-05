@@ -30,7 +30,7 @@ class ProfileCard extends GetView<MyController> {
           padding: const EdgeInsets.fromLTRB(30, 15, 30, 15),
           child: Row(
             children: [
-              // 头像
+              // Avatar
               SizedBox(
                 width: 80,
                 height: 80,
@@ -63,7 +63,7 @@ class ProfileCard extends GetView<MyController> {
                   ],
                 ),
               ),
-              // 用户信息
+              // User info
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                 child: Column(
@@ -83,7 +83,7 @@ class ProfileCard extends GetView<MyController> {
                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                       child: Row(
                         children: [
-                          // 性别
+                          // Gender
                           const Icon(
                             Icons.male_sharp,
                             color: Color(0xFF3B82F6),
@@ -98,7 +98,7 @@ class ProfileCard extends GetView<MyController> {
                               ),
                             )),
                           ),
-                          // 体重
+                          // Weight
                           Padding(
                             padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                             child: Row(

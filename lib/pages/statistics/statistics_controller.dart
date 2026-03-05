@@ -6,7 +6,7 @@ class StatisticsController extends GetxController {
   final selectedPeriod = 'week'.obs;
   final totalMovements = '0'.obs;
 
-  /// 三种运动的图表数据
+  /// Chart data for three exercises
   final bicepCurlData = <double>[].obs;
   final latPulldownData = <double>[].obs;
   final pecFlyData = <double>[].obs;
@@ -22,7 +22,7 @@ class StatisticsController extends GetxController {
     loadStatistics();
   }
 
-  /// 加载统计数据
+  /// Load statistics
   Future<void> loadStatistics() async {
     switch (selectedPeriod.value) {
       case 'week':
@@ -38,7 +38,7 @@ class StatisticsController extends GetxController {
     _updateTotalMovements();
   }
 
-  /// 加载周统计数据
+  /// Load weekly statistics
   Future<void> _loadWeeklyStats() async {
     final stats = await DatabaseService.to.getWeeklyStats();
     bicepCurlData.value = stats['bicep_curl'] ?? List.filled(7, 0.0);
@@ -46,7 +46,7 @@ class StatisticsController extends GetxController {
     pecFlyData.value = stats['pec_fly'] ?? List.filled(7, 0.0);
   }
 
-  /// 加载月统计数据
+  /// Load monthly statistics
   Future<void> _loadMonthlyStats() async {
     final stats = await DatabaseService.to.getMonthlyStats();
     bicepCurlData.value = stats['bicep_curl'] ?? List.filled(4, 0.0);
@@ -54,7 +54,7 @@ class StatisticsController extends GetxController {
     pecFlyData.value = stats['pec_fly'] ?? List.filled(4, 0.0);
   }
 
-  /// 加载年统计数据
+  /// Load yearly statistics
   Future<void> _loadYearlyStats() async {
     final stats = await DatabaseService.to.getYearlyStats();
     bicepCurlData.value = stats['bicep_curl'] ?? List.filled(12, 0.0);
@@ -62,7 +62,7 @@ class StatisticsController extends GetxController {
     pecFlyData.value = stats['pec_fly'] ?? List.filled(12, 0.0);
   }
 
-  /// 更新总运动次数
+  /// Update total movements
   void _updateTotalMovements() {
     final bicepTotal = bicepCurlData.fold(0.0, (a, b) => a + b);
     final latTotal = latPulldownData.fold(0.0, (a, b) => a + b);
@@ -71,7 +71,7 @@ class StatisticsController extends GetxController {
     totalMovements.value = total.toString();
   }
 
-  /// 获取指定运动的图表数据
+  /// Get chart data for specified exercise
   List<double> getChartData(String activityKey) {
     switch (activityKey) {
       case 'bicep_curl':
@@ -85,7 +85,7 @@ class StatisticsController extends GetxController {
     }
   }
 
-  /// 获取X轴标签
+  /// Get X-axis labels
   List<String> getXLabels() {
     switch (selectedPeriod.value) {
       case 'week':
@@ -100,7 +100,7 @@ class StatisticsController extends GetxController {
     }
   }
 
-  /// 获取汇总文本
+  /// Get summary text
   String getSummaryText(String activityKey) {
     final data = getChartData(activityKey);
     if (data.isEmpty) return '';
@@ -117,7 +117,7 @@ class StatisticsController extends GetxController {
     }
   }
 
-  /// 获取运动类型对应的图标
+  /// Get icon for exercise type
   IconData getIconForType(String activityKey) {
     switch (activityKey) {
       case 'bicep_curl':
@@ -131,21 +131,21 @@ class StatisticsController extends GetxController {
     }
   }
 
-  /// 获取运动类型对应的颜色
+  /// Get color for exercise type
   Color getColorForType(String activityKey) {
     switch (activityKey) {
       case 'bicep_curl':
-        return const Color(0xFF3B82F6); // 蓝色
+        return const Color(0xFF3B82F6); // Blue
       case 'lat_pulldown':
-        return const Color(0xFF22C55E); // 绿色
+        return const Color(0xFF22C55E); // Green
       case 'pec_fly':
-        return const Color(0xFFA855F7); // 紫色
+        return const Color(0xFFA855F7); // Purple
       default:
         return const Color(0xFF3B82F6);
     }
   }
 
-  /// 获取背景色
+  /// Get background color
   Color getBgColorForType(String activityKey) {
     switch (activityKey) {
       case 'bicep_curl':
